@@ -1,17 +1,14 @@
 #ifndef TRANSPOSE_IMPL
 #define TRANSPOSE_IMPL
 
-#ifdef NAIVE
-void transpose(int *src, int *dst, int w, int h)
+void naive_transpose(int *src, int *dst, int w, int h)
 {
     for (int x = 0; x < w; x++)
         for (int y = 0; y < h; y++)
             *(dst + x * h + y) = *(src + y * w + x);
 }
-#endif
 
-#ifdef SSE
-void transpose(int *src, int *dst, int w, int h)
+void sse_transpose(int *src, int *dst, int w, int h)
 {
     for (int x = 0; x < w; x += 4) {
         for (int y = 0; y < h; y += 4) {
@@ -34,14 +31,12 @@ void transpose(int *src, int *dst, int w, int h)
         }
     }
 }
-#endif
 
-#ifdef SSE_PREFETCH
-void transpose(int *src, int *dst, int w, int h)
+void sse_prefetch_transpose(int *src, int *dst, int w, int h)
 {
     for (int x = 0; x < w; x += 4) {
         for (int y = 0; y < h; y += 4) {
-#define PFDIST  8
+#define PFDIST  16
             _mm_prefetch(src+(y + PFDIST + 0) *w + x, _MM_HINT_T1);
             _mm_prefetch(src+(y + PFDIST + 1) *w + x, _MM_HINT_T1);
             _mm_prefetch(src+(y + PFDIST + 2) *w + x, _MM_HINT_T1);
@@ -66,6 +61,5 @@ void transpose(int *src, int *dst, int w, int h)
         }
     }
 }
-#endif
 
 #endif /* TRANSPOSE_IMPL */
